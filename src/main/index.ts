@@ -1,11 +1,13 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-
+import { getPWD } from './files/node.utils.js'
+import { readdir } from 'fs/promises'
+let mainWindow
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -50,8 +52,29 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('ping', () => console.log('pong' + getPWD()))
+  ipcMain.on('print-here', () => console.log('pong', getPWD()))
 
+  // IPC listener for selecting directory
+  ipcMain.on('select-directory', async (event) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'] // Opens directory selection
+    })
+
+    if (!result.canceled && result.filePaths.length > 0) {
+      const selectedDirectory = result.filePaths[0]
+      try {
+        const files = await readdir(selectedDirectory)
+        event.sender.send('directory-selected', files) // Send the list of files back to renderer
+      } catch (err) {
+        console.error('Failed to read directory', err)
+      }
+    }
+  })
+
+  ipcMain.on('print-here', () => {
+    console.log('print-here')
+  })
   createWindow()
 
   app.on('activate', function () {

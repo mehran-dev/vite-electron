@@ -1,8 +1,17 @@
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+
+  const [files, setFiles] = useState<string[]>([])
+  // Listen for the directory selection result
+  // @ts-ignore
+  window.electron.ipcRenderer.on('directory-selected', (fileList: string[]) => {
+    setFiles(fileList) // Set the list of files in the state
+  })
+  console.log(files)
 
   return (
     <>
@@ -22,9 +31,29 @@ function App(): JSX.Element {
           </a>
         </div>
         <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
+          <button
+            onClick={() => {
+              window.electron.ipcRenderer.send('ping')
+            }}
+          >
             Send IPC
-          </a>
+          </button>
+
+          <button
+            onClick={() => {
+              window.electron.ipcRenderer.send('print-here')
+            }}
+          >
+            print current directory
+          </button>
+
+          <button
+            onClick={() => {
+              window.electron.ipcRenderer.send('select-directory')
+            }}
+          >
+            Open Directory
+          </button>
         </div>
       </div>
       <Versions></Versions>
