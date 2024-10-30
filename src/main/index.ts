@@ -6,7 +6,6 @@ import { getPWD } from './files/node.utils.js'
 import { readdir } from 'fs/promises'
 let mainWindow
 function createWindow(): void {
-  // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
@@ -35,6 +34,10 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  if (is.dev) {
+    mainWindow.webContents.openDevTools()
+  }
 }
 
 // This method will be called when Electron has finished
@@ -43,6 +46,13 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+  createWindow()
+
+  app.on('activate', function () {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -53,18 +63,24 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong' + getPWD()))
-  ipcMain.on('print-here', () => console.log('pong', getPWD()))
+  ipcMain.on('print-here', (_e, kula: any) => {
+    console.log('pong', getPWD())
+    console.log('kula', kula)
+  })
 
   // IPC listener for selecting directory
   ipcMain.on('select-directory', async (event) => {
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'] // Opens directory selection
     })
+    console.log('Result => ', result)
 
     if (!result.canceled && result.filePaths.length > 0) {
       const selectedDirectory = result.filePaths[0]
       try {
         const files = await readdir(selectedDirectory)
+        console.log('files', files)
+
         event.sender.send('directory-selected', files) // Send the list of files back to renderer
       } catch (err) {
         console.error('Failed to read directory', err)
@@ -74,13 +90,6 @@ app.whenReady().then(() => {
 
   ipcMain.on('print-here', () => {
     console.log('print-here')
-  })
-  createWindow()
-
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 

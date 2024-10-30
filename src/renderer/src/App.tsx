@@ -1,6 +1,9 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
 import { useState } from 'react'
+
+/* 
+  --- Read the Documentation in here  --- 
+   https://electron-vite.org/
+*/
 
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
@@ -10,26 +13,14 @@ function App(): JSX.Element {
   // @ts-ignore
   window.electron.ipcRenderer.on('directory-selected', (fileList: string[]) => {
     setFiles(fileList) // Set the list of files in the state
+    console.log(fileList)
   })
-  console.log(files)
 
   return (
     <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
+      <></>
+
       <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
         <div className="action">
           <button
             onClick={() => {
@@ -41,7 +32,7 @@ function App(): JSX.Element {
 
           <button
             onClick={() => {
-              window.electron.ipcRenderer.send('print-here')
+              window.electron.ipcRenderer.send('print-here', { kula: 'Foo', Bar: 'Baz' })
             }}
           >
             print current directory
@@ -54,9 +45,17 @@ function App(): JSX.Element {
           >
             Open Directory
           </button>
+          <button
+            onClick={() => {
+              console.log(window.api)
+
+              window.api.do()
+            }}
+          >
+            API
+          </button>
         </div>
       </div>
-      <Versions></Versions>
     </>
   )
 }
