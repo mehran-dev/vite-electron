@@ -8,7 +8,7 @@ export interface API {
 // Custom APIs for renderer
 const api: API = {
   do: (): void => {
-    console.log('Obsticle Destroyed !🎇🎇🎇')
+    console.log('Obstacle Destroyed !🎇🎇🎇')
   }
 }
 
