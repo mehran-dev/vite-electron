@@ -9,12 +9,12 @@ import TreeView from './components/TreeView'
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
-  const [directoryTree, setDirectoryTree] = useState([])
+  const [directory, setDirectory] = useState<{ path: string; directoryTree: any[] } | null>(null)
 
   useEffect(() => {
     // Listen for the directory data from the main process
     window.electron.ipcRenderer.on('directory-selected', (event, data) => {
-      setDirectoryTree(data)
+      setDirectory(data)
     })
 
     return () => {
@@ -25,9 +25,10 @@ function App(): JSX.Element {
     <>
       <></>
 
-      <div className="actions">
-        <div className="action">
+      <div className="">
+        <div className="mx-auto">
           <button
+            className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"
             onClick={() => {
               window.electron.ipcRenderer.send('ping')
             }}
@@ -36,6 +37,7 @@ function App(): JSX.Element {
           </button>
 
           <button
+            className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"
             onClick={() => {
               window.electron.ipcRenderer.send('print-here', { kula: 'Foo', Bar: 'Baz' })
             }}
@@ -44,6 +46,7 @@ function App(): JSX.Element {
           </button>
 
           <button
+            className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"
             onClick={() => {
               window.electron.ipcRenderer.send('select-directory')
             }}
@@ -51,6 +54,7 @@ function App(): JSX.Element {
             Open Directory
           </button>
           <button
+            className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"
             onClick={() => {
               console.log(window.api)
 
@@ -60,8 +64,8 @@ function App(): JSX.Element {
             API
           </button>
         </div>
-        <div className="mx-12  h-[50vh] overflow-auto w-full">
-          <TreeView data={directoryTree} />
+        <div className="mx-12 my-3 h-[50vh] overflow-auto w-full border rounded-md p-3">
+          <TreeView data={directory?.directoryTree || []} />
         </div>
       </div>
     </>

@@ -27,7 +27,10 @@ const TreeNode = ({ node }) => {
   return <div style={{ paddingLeft: 20 }}>📄 {node.name}</div>
 }
 
-const TreeView = ({ data }) => {
+type TreeViewProps = {
+  data: any[]
+}
+const TreeView = ({ data }: TreeViewProps) => {
   return (
     <div>
       {data.map((node, index) => (

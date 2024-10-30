@@ -3,8 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getPWD } from './files/node.utils.js'
-import { readdir } from 'fs/promises'
 import { getDirectoryTree } from './utils/path.utils'
+import { ConversionOptions, convertExtensions } from './utils/extension.util'
 let mainWindow
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -68,6 +68,10 @@ app.whenReady().then(() => {
     console.log('pong', getPWD())
     console.log('kula', kula)
   })
+  ipcMain.on('convert-extensions', (_e, data: ConversionOptions) => {
+    const { path, extensions, excludes } = data
+    convertExtensions({ path, extensions, excludes })
+  })
 
   // IPC listener for selecting directory
   ipcMain.on('select-directory', async (event) => {
@@ -80,7 +84,7 @@ app.whenReady().then(() => {
       const selectedDirectory = result.filePaths[0]
       try {
         const directoryTree = await getDirectoryTree(selectedDirectory)
-        event.sender.send('directory-selected', directoryTree)
+        event.sender.send('directory-selected', { directoryTree, path: selectedDirectory })
       } catch (err) {
         console.error('Failed to read directory', err)
       }
