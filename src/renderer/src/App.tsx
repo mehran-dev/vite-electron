@@ -17,9 +17,9 @@ function App(): JSX.Element {
       setDirectory(data)
     })
 
-    return () => {
+    /*   return () => {
       window.electron.ipcRenderer.removeAllListeners('directory-selected')
-    }
+    } */
   }, [])
   return (
     <>
@@ -52,6 +52,18 @@ function App(): JSX.Element {
             }}
           >
             Open Directory
+          </button>
+          <button
+            className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"
+            onClick={() => {
+              window.electron.ipcRenderer.send('convert-extensions', {
+                path: '',
+                extensions: [],
+                excludes: []
+              })
+            }}
+          >
+            Change Extensions
           </button>
           <button
             className="mx-2 border border-solid rounded-lg  px-2 hover:bg-slate-600"

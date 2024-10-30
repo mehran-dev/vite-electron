@@ -1,8 +1,12 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+export interface API {
+  do: () => void
+}
+
 // Custom APIs for renderer
-const api = {
+const api: API = {
   do: (): void => {
     console.log('Obsticle Destroyed !🎇🎇🎇')
   }
