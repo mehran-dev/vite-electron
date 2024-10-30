@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import TreeView from './components/TreeView'
 
 /* 
   --- Read the Documentation in here  --- 
@@ -8,14 +9,18 @@ import { useState } from 'react'
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
-  const [files, setFiles] = useState<string[]>([])
-  // Listen for the directory selection result
-  // @ts-ignore
-  window.electron.ipcRenderer.on('directory-selected', (fileList: string[]) => {
-    setFiles(fileList) // Set the list of files in the state
-    console.log(fileList)
-  })
+  const [directoryTree, setDirectoryTree] = useState([])
 
+  useEffect(() => {
+    // Listen for the directory data from the main process
+    window.electron.ipcRenderer.on('directory-selected', (event, data) => {
+      setDirectoryTree(data)
+    })
+
+    return () => {
+      window.electron.ipcRenderer.removeAllListeners('directory-selected')
+    }
+  }, [])
   return (
     <>
       <></>
@@ -54,6 +59,9 @@ function App(): JSX.Element {
           >
             API
           </button>
+        </div>
+        <div className="mx-12  h-[50vh] overflow-auto w-full">
+          <TreeView data={directoryTree} />
         </div>
       </div>
     </>

@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getPWD } from './files/node.utils.js'
 import { readdir } from 'fs/promises'
+import { getDirectoryTree } from './utils/path.utils'
 let mainWindow
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -78,10 +79,8 @@ app.whenReady().then(() => {
     if (!result.canceled && result.filePaths.length > 0) {
       const selectedDirectory = result.filePaths[0]
       try {
-        const files = await readdir(selectedDirectory)
-        console.log('files', files)
-
-        event.sender.send('directory-selected', files) // Send the list of files back to renderer
+        const directoryTree = await getDirectoryTree(selectedDirectory)
+        event.sender.send('directory-selected', directoryTree)
       } catch (err) {
         console.error('Failed to read directory', err)
       }
